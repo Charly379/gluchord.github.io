@@ -49,9 +49,23 @@
             align-items: center;
             justify-content: space-between;
         }
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
         .label {
             font-weight: 600;
             margin-right: 5px;
+            width: 45px;
+            text-align: right;
+        }
+        .label.quantity {
+            font-weight: normal;
+        }
+        .meal-label {
+            width: 60px;
+            text-align: left;
+            font-weight: bold;
         }
         input[type="number"] {
             width: 50px;
@@ -121,11 +135,15 @@
             const blockHtml = `
                 <div class="meal-block">
                     <div class="input-row">
-                        <div class="label">${mealType}</div>
-                        <div class="label">%</div>
-                        <input type="number" id="ratio-${index}" maxlength="7" oninput="calculateTotalCarbs()">
-                        <div class="label">Q(g)</div>
-                        <input type="number" id="quantity-${index}" maxlength="7" oninput="calculateTotalCarbs()">
+                        <div class="meal-label">${mealType}</div>
+                        <div class="input-group">
+                            <div class="label">%</div>
+                            <input type="number" id="ratio-${index}" maxlength="7" oninput="calculateTotalCarbs()">
+                        </div>
+                        <div class="input-group">
+                            <div class="label quantity">Q(g)</div>
+                            <input type="number" id="quantity-${index}" maxlength="7" oninput="calculateTotalCarbs()">
+                        </div>
                         <button class="reset-button" onclick="resetFields(${index})">Del</button>
                     </div>
                 </div>
@@ -143,8 +161,12 @@
         function calculateTotalCarbs() {
             let totalCarbs = 0;
             mealTypes.forEach((_, index) => {
-                const ratio = parseFloat(document.getElementById(`ratio-${index}`).value) || 0;
-                const quantity = parseFloat(document.getElementById(`quantity-${index}`).value) || 0;
+                const ratioInput = document.getElementById(`ratio-${index}`);
+                const quantityInput = document.getElementById(`quantity-${index}`);
+                
+                const ratio = ratioInput.value === '' ? 100 : parseFloat(ratioInput.value);
+                const quantity = parseFloat(quantityInput.value) || 0;
+                
                 totalCarbs += (ratio * quantity) / 100;
             });
             document.getElementById('total-result').textContent = 

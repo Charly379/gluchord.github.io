@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gluchord - Repas complet</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f7;
+            color: #000;
+        }
+        .app-container {
+            max-width: 414px;
+            margin: 0 auto;
+            background-color: #fff;
+            min-height: 100vh;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .status-bar {
+            background-color: #000;
+            color: #fff;
+            padding: 5px 15px;
+            font-size: 12px;
+            text-align: right;
+        }
+        .nav-bar {
+            background-color: #007aff;
+            padding: 15px;
+            text-align: center;
+        }
+        .nav-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .content {
+            padding: 10px;
+        }
+        .meal-block {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .meal-block:nth-child(odd) {
+            background-color: #e6f2ff;
+        }
+        .meal-block:nth-child(even) {
+            background-color: #cce5ff;
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .label {
+            font-weight: 600;
+            margin-right: 5px;
+            font-size: 16px;
+        }
+        input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            -moz-appearance: textfield;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .reset-button {
+            background-color: #ff3b30;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 12px;
+            margin-left: auto;
+            cursor: pointer;
+        }
+        .total-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 20px;
+            background-color: #007aff;
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        #total-result {
+            font-weight: 600;
+            font-size: 18px;
+        }
+        #reset-all-button {
+            background-color: #ff3b30;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="status-bar">
+            20:00
+        </div>
+        <div class="nav-bar">
+            <div class="nav-title">Gluchord</div>
+        </div>
+        <div class="content">
+            <div id="meal-blocks"></div>
+            <div class="total-container">
+                <div id="total-result">Quantité totale de Glucides : 0g</div>
+                <button id="reset-all-button" onclick="resetAllFields()">Del</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mealTypes = ['Apéro', 'Entrée', 'Plat', 'Pain', 'Dessert'];
+
+        function createMealBlock(mealType, index) {
+            const blockHtml = `
+                <div class="meal-block">
+                    <div class="input-row">
+                        <div class="label">${mealType}</div>
+                    </div>
+                    <div class="input-row">
+                        <div class="label">%</div>
+                        <input type="number" id="ratio-${index}" maxlength="7" oninput="calculateTotalCarbs()">
+                        <div class="label" style="margin-left: 10px;">Q(g)</div>
+                        <input type="number" id="quantity-${index}" maxlength="7" oninput="calculateTotalCarbs()">
+                        <button class="reset-button" onclick="resetFields(${index})">Del</button>
+                    </div>
+                </div>
+            `;
+            return blockHtml;
+        }
+
+        function initializeMealBlocks() {
+            const container = document.getElementById('meal-blocks');
+            mealTypes.forEach((mealType, index) => {
+                container.innerHTML += createMealBlock(mealType, index);
+            });
+        }
+
+        function calculateTotalCarbs() {
+            let totalCarbs = 0;
+            mealTypes.forEach((_, index) => {
+                const ratio = parseFloat(document.getElementById(`ratio-${index}`).value) || 0;
+                const quantity = parseFloat(document.getElementById(`quantity-${index}`).value) || 0;
+                totalCarbs += (ratio * quantity) / 100;
+            });
+            document.getElementById('total-result').textContent = 
+                `Quantité totale de Glucides : ${totalCarbs.toFixed(1)}g`;
+        }
+
+        function resetFields(index) {
+            document.getElementById(`ratio-${index}`).value = '';
+            document.getElementById(`quantity-${index}`).value = '';
+            calculateTotalCarbs();
+        }
+
+        function resetAllFields() {
+            mealTypes.forEach((_, index) => {
+                resetFields(index);
+            });
+        }
+
+        // Initialize the meal blocks when the page loads
+        window.onload = initializeMealBlocks;
+    </script>
+</body>
+</html>
